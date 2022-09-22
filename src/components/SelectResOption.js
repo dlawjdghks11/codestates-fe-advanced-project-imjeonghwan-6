@@ -1,12 +1,17 @@
 import styled from "styled-components";
-import { Select, Switch } from "antd";
+import { Select, Switch, Button } from "antd";
 import { useState } from "react";
+import { add } from "../features/surveyListSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const SelectContainer = styled.div`
     width: 16vw;
     height: 45vw;
+    margin-top: 5vw;
     flex-direction: column;
     align-items: center;
+    border: 1px solid skyblue;
 `;
 
 const Container1 = styled.div`
@@ -39,10 +44,24 @@ const Toggle = styled(Switch)`
     margin-left: auto;
 `;
 
+const SubmitBtn = styled(Button)`
+    margin-top: auto;
+    margin-bottom: 5vw;
+    height: 40px;
+    font-size: 20px;
+`;
+
 function SelectResOption({currentValue, handleChange}){
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
     const [isTrue, setIsTrue] = useState(true);
     const toggleHandler = () => {
         setIsTrue(!isTrue);
+    }
+    const survey = useSelector((state) => state.surveyList);
+    const onSubmit = () => {
+        dispatch(add(survey));
+        navigate('/');
     }
     return (
         <SelectContainer>
@@ -62,6 +81,7 @@ function SelectResOption({currentValue, handleChange}){
                 <TextContainer>필수 여부</TextContainer>
                 <Toggle onChange={toggleHandler} checked/>
             </ToggleContainer>
+            <SubmitBtn type="primary" onClick={onSubmit}>생성 완료</SubmitBtn>
         </SelectContainer>
     )
 }

@@ -3,10 +3,14 @@ import { Button } from "antd";
 import SelectResOption from "../components/SelectResOption";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import RadioModal from "../components/RadioModal";
+import { useDispatch } from "react-redux";
+import { addQuestion } from "../features/createSurveySlice";
 
 const BackgourndContainer = styled.div`
     width: 64vw;
     height: 45vw;
+    margin-top: 5vw;
     align-items: center;
     background-image: linear-gradient(lightskyblue, dodgerblue);
     flex-direction: column;
@@ -61,7 +65,8 @@ const OptionInput = styled.div`
 const AddBtn = styled(Button)`
     font-size: 20px;
     height: 40px;
-    margin-top: 120px;
+    margin-top: auto;
+    margin-bottom: 40px;
     :hover {
         color: black;
     }
@@ -69,23 +74,57 @@ const AddBtn = styled(Button)`
 
 function AddRadio () {
     const navigate = useNavigate();
-    const currentValue = 'Radio';
+    const dispatch = useDispatch();
+    const [surveyInfo, setsurveyInfo] = useState({
+        question: '',
+        isRequired: true,
+        answer: {
+            inputType: "radio",
+            inputOptions: [
+                {value: ''},
+                {value: ''},
+            ]
+        }
+    })
     const handleChange = (value) => {
         navigate(`/create/${value}`)
       }
+    const [openModal, setOpenModal] = useState(false);
+    const modalHandler = () => {
+        setOpenModal(!openModal)
+    }
+    const inputHandler = (e) => {
+        let value = e.target.value;
+        setsurveyInfo({ ...surveyInfo, [e.target.name]: value });
+    };
+    const onSubmit = () => {
+        const info = surveyInfo;
+        dispatch(addQuestion(info))
+    }
     return (
         <>
             <BackgourndContainer>
                 <TextContainer>
-                    <TextInput placeholder="4. Radio 설문조사 제목을 입력해주세요."></TextInput>
+                    <TextInput 
+                        name="question"
+                        placeholder="4. Radio 설문조사 제목을 입력해주세요."
+                        onChange={inputHandler}
+                    ></TextInput>
                 </TextContainer>
                 <TextAreaContainer>
                     <OptionInput></OptionInput>
                 </TextAreaContainer>
-                <AddOptionBtn>옵션 추가하기</AddOptionBtn>
-                <AddBtn icon="plus">질문 추가하기</AddBtn>
+                <AddOptionBtn onClick={modalHandler}>옵션 추가하기</AddOptionBtn>
+                <AddBtn icon="plus" onClick={onSubmit}>질문 추가하기</AddBtn>
             </BackgourndContainer>
-            <SelectResOption currentValue={currentValue} handleChange={handleChange}></SelectResOption>
+            {openModal 
+            ? <RadioModal 
+                modalHandler={modalHandler} 
+                data={surveyInfo} 
+                setData={setsurveyInfo}
+            /> 
+            : null}
+            <SelectResOption currentValue='Radio' handleChange={handleChange}></SelectResOption>
         </>
     )
 }
