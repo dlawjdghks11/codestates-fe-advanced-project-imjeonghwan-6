@@ -2,10 +2,13 @@ import styled from "styled-components";
 import { Button, Typography, Icon } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { setTitle } from "../features/createSurveySlice";
 
 const BackgourndContainer = styled.div`
     width: 80vw;
     height: 45vw;
+    margin-top: 5vw;
     align-items: center;
     background-image: linear-gradient(lightskyblue, dodgerblue);
     flex-direction: column;
@@ -73,9 +76,15 @@ const TextContainer2 = styled(Typography.Text)`
     align-items: center;
 `;
 
-function CreateSurvey({surveyInfo, handleData}){
+function CreateSurvey(){
     const navigate = useNavigate();
-    const [data, setData] = useState(surveyInfo)
+    const dispatch = useDispatch();
+    const [surveyInfo, setSurveyInfo] = useState({
+        title: '',
+        description: '',
+        formData: [],
+        completionNotice: '귀한 시간 내주셔서 감사합니다.'
+      })
     const autoResizeTextarea = (e) => {
         let textarea = document.querySelector('.autoTextarea');
       
@@ -87,13 +96,18 @@ function CreateSurvey({surveyInfo, handleData}){
     };
     const inputHandler = (e) => {
         let value = e.target.value;
-        setData({ ...data, [e.target.name]: value });
+        setSurveyInfo({ ...surveyInfo, [e.target.name]: value });
     };
     const onSubmit = () => {
-        const info = data;
-        handleData(info)
-        navigate('/create/select')
+        const info = surveyInfo;
+        dispatch(setTitle(info));
+        navigate('/create/select');
     }
+    const handleKeyPress = (e) => {
+		if (e.type === 'keypress' && e.code === 'Enter') {
+			onSubmit()
+		}
+	}
     return (
         <BackgourndContainer>
             <TextContainer>
@@ -111,6 +125,7 @@ function CreateSurvey({surveyInfo, handleData}){
                     onKeyDown={autoResizeTextarea}
                     onKeyUp={autoResizeTextarea}
                     onChange={inputHandler}
+                    onKeyPress={handleKeyPress}
                 >
                 </TextareaInput>
             </TextAreaContainer>
